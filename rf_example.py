@@ -69,4 +69,7 @@ print('Train Score: %s' % rf.score(train, y_train))
 print('Valid Score: %s' % rf.score(valid, y_valid))
 ​
 # Save the RF
-joblib.dump('rf', './data/rf_trained.pkl')
+joblib.dump(rf, './data/rf_trained.pkl')
+
+# Load RF
+#rf = joblib.load('./data/rf_trained.pkl')
