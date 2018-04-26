@@ -221,8 +221,6 @@ layout = go.Layout(title='Predicted vs. True Values', titlefont={'color':"white"
 print('Layout Complete!')
 app.layout = html.Div(children=[
     html.H2(children='Beta Release'),
-
-
     html.Table(
                [html.Tr([html.Th(col) for col in df_test.columns])] +
                [html.Tr( [html.Td(df_test.iloc[i][col]) for col in df_test.columns] ) 
@@ -235,7 +233,8 @@ app.layout = html.Div(children=[
                       'width':'900',
                       "background-color": "#141414",
                       "color": "#c1c0bf",
-                      'border-color': "#c1c0bf" 
+                      'border-color': "#c1c0bf" ,
+                      'font-family':'helvetica'
                      }
               ),
     dcc.Graph(
