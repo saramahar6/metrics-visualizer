@@ -67,8 +67,12 @@ print(mean_squared_log_error(y_valid, y_pred))
 print('Train Score: %s' % rf.score(train, y_train))
 print('Valid Score: %s' % rf.score(valid, y_valid))
 
-# Save the RF
+# Save the RF and data
 joblib.dump(rf, './data/rf_trained.pkl')
+train.reset_index(drop=True).to_feather('./data/x_train.feather')
+valid.reset_index(drop=True).to_feather('./data/x_valid.feather')
+y_train.reset_index(drop=True).to_csv('./data/y_train.csv', index=False)
+y_valid.reset_index(drop=True).to_csv('./data/y_valid.csv', index=False)
 
 # Load RF
 #rf = joblib.load('./data/rf_trained.pkl')
