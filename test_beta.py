@@ -95,12 +95,14 @@ df_train = pd.DataFrame(train_metrics).head(1).drop(["preds"], axis = 1).apply(l
 df_train["type"] = "training"
 df_train = df_train[columns]
 
-colorscale =[[0.0, 'rgb(50,50,50)'], [0.001, 'rgb(5, 57, 94)'],[1.0,'rgb(126, 247, 27)']]#[1.0, 'rgb(242, 59, 31)']]
+bgcolor = 'rbg(255,255,255)'
+fontcolor = 'rgb(30,30,60)'
+colorscale =[[0.0, 'rgb(255,255,255)'], [0.001, 'rgb(0, 0, 0)'],[1.0,'rgb(240, 60, 220)']]#[1.0, 'rgb(242, 59, 31)']]
 train_rows = train.shape[0]
 valid_rows = valid.shape[0]
 train_mean = np.mean(y_train)
 valid_mean = np.mean(y_valid)
-color_bar_nums = [60, 5]
+color_bar_nums = [50, 5]
 color_bar_list = ["max", "min"]
 annot_font = {"family":'helvetica', "size":20,"color":"white"}#'rgb(2, 150, 255)'}
 print('Plot Preprocessing Complete!')
@@ -203,7 +205,7 @@ annotations=[
 layout = go.Layout(title='Predicted vs. True Values', titlefont={'color':"white"},
                    font=dict(family='helvetica', 
                              size=14, 
-                             color='rgb(193, 192, 191)'),
+                             color=fontcolor),
                    xaxis={'title': 'Predicted', 
                           "domain":[0, 0.45]},
                    yaxis={'title': 'True', 
@@ -212,15 +214,16 @@ layout = go.Layout(title='Predicted vs. True Values', titlefont={'color':"white"
                            "domain":[0.55, 1]},
                    yaxis2={"title":"True", 
                            'domain':[0,.4]},
-                   paper_bgcolor = "rgb(20,20,20)",
-                   plot_bgcolor="rgb(50,50,50)",
+                   paper_bgcolor = bgcolor,
+                   plot_bgcolor = bgcolor,
                    autosize=False,
                    width=900,
                    height=900,
                    annotations=annotations)
 print('Layout Complete!')
 app.layout = html.Div(children=[
-    html.H2(children='Beta Release'),
+    html.H2(children='Regression Metrics',
+            style={'font-family':'helvetica'}),
     html.Table(
                [html.Tr([html.Th(col) for col in df_test.columns])] +
                [html.Tr( [html.Td(df_test.iloc[i][col]) for col in df_test.columns] ) 
@@ -231,9 +234,9 @@ app.layout = html.Div(children=[
                style={'border': '4px solid',
                       'text-align': 'center',
                       'width':'900',
-                      "background-color": "#141414",
-                      "color": "#c1c0bf",
-                      'border-color': "#c1c0bf" ,
+                      "background-color": "white",
+                      "color": "black",
+                      'border-color': "gray" ,
                       'font-family':'helvetica'
                      }
               ),
