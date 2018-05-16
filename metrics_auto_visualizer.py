@@ -11,8 +11,6 @@ from flask import Flask
 from plotly.figure_factory import create_2d_density
 from plotly.graph_objs import graph_objs
 
-import warnings
-warnings.filterwarnings('ignore')
 
 def plot_metrics(model, train, valid, y_train, y_valid, port=9999):
 	server = Flask('mav')
@@ -251,7 +249,7 @@ def plot_metrics(model, train, valid, y_train, y_valid, port=9999):
 		                                 color=fontcolor)
 		              )
 		          }
-		         )
+		        )
 		    ],
 		        style={'display':'inline-block',
 		               'width':'49%',
@@ -503,6 +501,7 @@ def plot_metrics(model, train, valid, y_train, y_valid, port=9999):
 
 		valid_metrics, train_metrics = get_regression_metrics(model, train, y_train, valid, y_valid)
 		df_test = pd.DataFrame(valid_metrics).head(1).drop(["preds"], axis = 1).apply(lambda x:round(x, 4))
+		imp = importances(model, valid,y_valid,n_samples=50_000)
 		print('Metrics Loaded!')
 
 		################
@@ -528,18 +527,17 @@ def plot_metrics(model, train, valid, y_train, y_valid, port=9999):
 
 		bgcolor = 'rbg(255,255,255)'
 		fontcolor = 'rgb(30,30,60)'
-		colorscale =[[0.0, 'rgb(255,255,255)'], [0.001, 'rgb(0, 0, 0)'],[1.0,'rgb(240, 60, 220)']]#[1.0, 'rgb(242, 59, 31)']]
-		train_rows = train.shape[0]
+		colorscale =[[0.0, 'rgb(255,255,255)'],[0.0001, 'rgb(224,224,224)'], [1.0,'rgb(0, 0, 255)']]
 		valid_rows = valid.shape[0]
 		train_mean = np.mean(y_train)
 		valid_mean = np.mean(y_valid)
 		color_bar_nums = [50, 5]
 		color_bar_list = ["max", "min"]
-		annot_font = {"family":'helvetica', "size":20,"color":"white"}#'rgb(2, 150, 255)'}
+		annot_font = {"family":'helvetica', "size":20,"color":"white"}
 		print('Plot Preprocessing Complete!')
 
 		# plot a subsample
-		sampSize = 2_000
+		sampSize = 5_000
 		iTrainSamp = xy_sample(train, sampSize)
 		iValidSamp = xy_sample(valid, sampSize)
 		y_train = y_train.loc[iTrainSamp]
@@ -554,28 +552,27 @@ def plot_metrics(model, train, valid, y_train, y_valid, port=9999):
 		                                           nbinsy=100, 
 		                                           autocontour= False,
 		                                           contours = {"showlines":False},
-		                                           yaxis='y2', 
 		                                           colorscale=colorscale,
 		                                           colorbar={"yanchor":"top", 
 		                                                     "len":.5,
 		                                                    'ticktext':color_bar_list,
-		                                                     'tickvals':color_bar_nums,
-		                                                    'tickmode':'array'}
-		                                                    #'tickfont':{'color':'white'}}
-		                                          )
+		                                                    'tickvals':color_bar_nums,
+		                                                    'tickmode':'array'},
+		                                           xaxis='x2',
+		                                           yaxis='y2'
+		                                           )
 
 		trace_hist2 = graph_objs.Histogram2dcontour(x = train_metrics["preds"][iTrainSamp], 
-		                                            y= y_train, 
+		                                            y = y_train, 
 		                                            name= "Training set", 
-		                                            xaxis='x2',
-		                                            yaxis='y2',
 		                                            ncontours=100,
 		                                            nbinsx=100,
 		                                            nbinsy=100, 
 		                                            autocontour= False,
 		                                            contours = {"showlines":False},
 		                                            colorscale=colorscale,
-		                                            showscale=False
+		                                            showscale=False,
+		                                            yaxis='y2'
 		                                            )
 
 		trace = go.Scatter(x = valid_metrics["preds"][iValidSamp], 
@@ -583,19 +580,20 @@ def plot_metrics(model, train, valid, y_train, y_valid, port=9999):
 		                   mode='markers',
 		                   marker = {"opacity":0.7, 
 		                             "color":'rgb(22, 199, 229)'},
-		                   xaxis='x2', 
 		                   textfont=dict(family='helvetica', 
 		                                 size=14, 
 		                                 color='rgb(193, 192, 191)'),
 		                   showlegend=True, 
-		                   name = "Validation")
+		                   name = "Validation",
+		                   xaxis='x2',
+		                   )
 
-		trace2 = go.Scatter(x = train_metrics["preds"][iTrainSamp], y= y_train, 
-		                          mode='markers',
-		                          marker = {"opacity":0.7, 
-		                                    "color":'rgb(2, 150, 255)'},
-		                          showlegend=True, 
-		                          name = "Training", 
+		trace2 = go.Scatter(x = train_metrics["preds"][iTrainSamp], y = y_train, 
+		                    mode = 'markers',
+		                    marker = {"opacity":0.7, 
+		                    		  "color":'rgb(2, 150, 255)'},
+		                    showlegend=True, 
+		                    name = "Training",
 		                   )
 
 		annotations=[
@@ -640,18 +638,19 @@ def plot_metrics(model, train, valid, y_train, y_valid, port=9999):
 		                   xaxis={'title': 'Predicted', 
 		                          "domain":[0, 0.45]},
 		                   yaxis={'title': 'True', 
-		                          "domain":[0.6,1]},
+		                          "domain":[.55,1]},
 		                   xaxis2={'title': 'Predicted',
-		                           "domain":[0.55, 1]},
+		                           "domain":[0.55, 1],
+		                           'anchor':'y_den_v'},
 		                   yaxis2={"title":"True", 
-		                           'domain':[0,.4]},
+		                           'domain':[0,.45]},
 		                   paper_bgcolor = bgcolor,
 		                   plot_bgcolor = bgcolor,
 		                   autosize=False,
 		                   width=900,
 		                   height=900,
 		                   annotations=annotations)
-		print('Layout Complete!')
+		
 		app.layout = html.Div(children=[
 		    html.H2(children='Regression Metrics',
 		            style={'font-family':'helvetica'}),
@@ -670,14 +669,41 @@ def plot_metrics(model, train, valid, y_train, y_valid, port=9999):
 		                      'border-color': "gray" ,
 		                      'font-family':'helvetica'
 		                     }
-		              ),
+		    ),
 		    dcc.Graph(
 		        id='example-graph',
 		        figure={
 		            'data': [trace_hist, trace_hist2, trace, trace2],
 		            'layout': layout
 		        }
-		    )
+		    ),
+	    	dcc.Graph(id = 'rfpimp',
+	          figure={
+	              'data':[ go.Bar(
+	              x=list(imp.Importance),
+	              y=imp.index,
+	              orientation = 'h'
+	              )],
+	          'layout':go.Layout(
+	              title = 'Feature Importances',
+	              xaxis = {
+	                       'fixedrange':True,
+	                       'range':[0,1],
+	                       'domain':[.1,1]
+	                      },
+	              yaxis = {
+	                       'fixedrange':True
+	              },
+	              paper_bgcolor = bgcolor,
+	              plot_bgcolor=bgcolor,
+	              font=dict(family='helvetica', 
+	                                 size=14, 
+	                                 color=fontcolor),
+	              autosize=False,
+	              width=900
+	              )
+	          }
+	        )
 		])
 		print('Reticulating Splines!')
 
