@@ -17,7 +17,6 @@ def plot_metrics(model, train, valid, y_train, y_valid, port=9999):
 	app = dash.Dash(name='mav', sharing=True, server=server, csrf_protect=False)
 	app.css.config.serve_locally = True
 	app.scripts.config.serve_locally = True
-
 	# from rfpimp
 	def importances(model, X_valid, y_valid, features=None, n_samples=3500, sort=True):
 	    """
@@ -477,6 +476,9 @@ def plot_metrics(model, train, valid, y_train, y_valid, port=9999):
 		    y_pred = model.predict(valid)
 
 		    validation = {}
+
+		    y_valid = y_valid.values
+
 		    validation["msle"] = mean_squared_log_error(y_valid, y_pred)
 		    validation["mae"] = mean_absolute_error(y_valid, y_pred)
 		    validation["mse"] = mean_squared_error(y_valid, y_pred)
@@ -531,8 +533,8 @@ def plot_metrics(model, train, valid, y_train, y_valid, port=9999):
 		valid_rows = valid.shape[0]
 		train_mean = np.mean(y_train)
 		valid_mean = np.mean(y_valid)
-		color_bar_nums = [50, 5]
-		color_bar_list = ["max", "min"]
+		color_bar_nums = [0]
+		color_bar_list = ["min"]
 		annot_font = {"family":'helvetica', "size":20,"color":"white"}
 		print('Plot Preprocessing Complete!')
 
@@ -555,9 +557,10 @@ def plot_metrics(model, train, valid, y_train, y_valid, port=9999):
 		                                           colorscale=colorscale,
 		                                           colorbar={"yanchor":"top", 
 		                                                     "len":.5,
-		                                                    'ticktext':color_bar_list,
-		                                                    'tickvals':color_bar_nums,
-		                                                    'tickmode':'array'},
+		                                                    #'ticktext':color_bar_list,
+		                                                    #'tickvals':color_bar_nums,
+		                                                    #'tickmode':'array'
+		                                                    },
 		                                           xaxis='x2',
 		                                           yaxis='y2'
 		                                           )
@@ -588,7 +591,8 @@ def plot_metrics(model, train, valid, y_train, y_valid, port=9999):
 		                   xaxis='x2',
 		                   )
 
-		trace2 = go.Scatter(x = train_metrics["preds"][iTrainSamp], y = y_train, 
+		trace2 = go.Scatter(x = train_metrics["preds"][iTrainSamp], 
+							y = y_train, 
 		                    mode = 'markers',
 		                    marker = {"opacity":0.7, 
 		                    		  "color":'rgb(2, 150, 255)'},
@@ -678,31 +682,31 @@ def plot_metrics(model, train, valid, y_train, y_valid, port=9999):
 		        }
 		    ),
 	    	dcc.Graph(id = 'rfpimp',
-	          figure={
-	              'data':[ go.Bar(
-	              x=list(imp.Importance),
-	              y=imp.index,
-	              orientation = 'h'
-	              )],
-	          'layout':go.Layout(
-	              title = 'Feature Importances',
-	              xaxis = {
-	                       'fixedrange':True,
-	                       'range':[0,1],
-	                       'domain':[.1,1]
-	                      },
-	              yaxis = {
-	                       'fixedrange':True
-	              },
-	              paper_bgcolor = bgcolor,
-	              plot_bgcolor=bgcolor,
-	              font=dict(family='helvetica', 
-	                                 size=14, 
-	                                 color=fontcolor),
-	              autosize=False,
-	              width=900
-	              )
-	          }
+	        	figure={
+		              'data':[ go.Bar(
+			              x=list(imp.Importance),
+			              y=imp.index,
+			              orientation = 'h'
+		              )],
+			          'layout':go.Layout(
+			              title = 'Feature Importances',
+			              xaxis = {
+			                       'fixedrange':True,
+			                       'range':[0,1],
+			                       'domain':[.1,1]
+			                      },
+			              yaxis = {
+			                       'fixedrange':True
+			              },
+			              paper_bgcolor = bgcolor,
+			              plot_bgcolor=bgcolor,
+			              font=dict(family='helvetica', 
+			                                 size=14, 
+			                                 color=fontcolor),
+			              autosize=False,
+			              width=900
+			              )
+	          	}
 	        )
 		])
 		print('Reticulating Splines!')
@@ -710,9 +714,9 @@ def plot_metrics(model, train, valid, y_train, y_valid, port=9999):
 		app.run_server(debug=False, port=port)
 
 	model_type = str(type(model)).lower()
-	if 'classifier' in model_type or 'logistic' in model_type:
+	if 'randomforestclassifier' in model_type:
 		do_classification()
-	elif 'regress' in model_type and 'logistic' not in model_type:
+	elif 'randomforestregressor' in model_type:
 		do_regression()
 	else:
 		print('Unsupported Model Type!')
