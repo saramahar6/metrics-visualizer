@@ -6,6 +6,6 @@ The file: `metrics_auto_visualizer.py` is the mean script to execute our code.  
 
 The Presentation: `viz_final.pdf`
 
-The blog: INSERT LINK HERE
+The blog: https://medium.com/@semahar2/metrics-auto-visualization-for-random-forests-58ec672436e7
 
-The video: INSERT LINK HERE
+The video: https://youtu.be/_KTHHD-q0bA
