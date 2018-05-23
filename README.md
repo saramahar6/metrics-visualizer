@@ -9,3 +9,5 @@ The Presentation: `viz_final.pdf`
 The blog: https://medium.com/@semahar2/metrics-auto-visualization-for-random-forests-58ec672436e7
 
 The video: https://youtu.be/_KTHHD-q0bA
+
+Co-created with: [Ernest Kim](https://github.com/ernestk-git)
